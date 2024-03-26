@@ -1,0 +1,26 @@
+object MainForm: TMainForm
+  Left = 565
+  Height = 736
+  Top = 167
+  Width = 684
+  Caption = 'MainForm'
+  ClientHeight = 736
+  ClientWidth = 684
+  LCLVersion = '3.2.0.0'
+  object StatusBar1: TStatusBar
+    Left = 0
+    Height = 20
+    Top = 716
+    Width = 684
+    Panels = <>
+  end
+  object BitBtn1: TBitBtn
+    Left = 544
+    Height = 30
+    Top = 12
+    Width = 75
+    Caption = 'Update currencyes'
+    OnClick = BitBtn1Click
+    TabOrder = 1
+  end
+end

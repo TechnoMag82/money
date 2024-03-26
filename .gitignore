@@ -1,0 +1,6 @@
+lib/
+lib/*
+backup
+backup/*
+Money
+*.lps
