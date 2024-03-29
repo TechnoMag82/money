@@ -1,0 +1,87 @@
+object DataModule1: TDataModule1
+  OnCreate = DataModuleCreate
+  OnDestroy = DataModuleDestroy
+  OldCreateOrder = False
+  Height = 277
+  HorizontalOffset = 419
+  VerticalOffset = 172
+  Width = 626
+  object ZConnection1: TZConnection
+    ControlsCodePage = cCP_UTF8
+    AutoEncodeStrings = True
+    ClientCodepage = 'UTF8'
+    Properties.Strings = (
+      'AutoEncodeStrings=ON'
+      'controls_cp=CP_UTF8'
+      'codepage=UTF8'
+    )
+    TransactIsolationLevel = tiReadCommitted
+    Connected = True
+    HostName = 'localhost'
+    Port = 5432
+    Database = 'currencies'
+    Protocol = 'postgresql-8'
+    LibraryLocation = '/usr/lib/x86_64-linux-gnu/libpq.so.5'
+    Left = 60
+    Top = 36
+  end
+  object BanksAndCurrencyDataSource: TDataSource
+    AutoEdit = False
+    DataSet = BanksAndCurrencyQuery
+    Left = 256
+    Top = 36
+  end
+  object BanksAndCurrencyQuery: TZQuery
+    Connection = ZConnection1
+    ReadOnly = True
+    SQL.Strings = (
+      ''
+    )
+    Params = <>
+    Left = 256
+    Top = 104
+    object ZQuery1Bank: TStringField
+      DisplayLabel = 'Банк'
+      FieldKind = fkData
+      FieldName = 'bank_name'
+      Index = 0
+      LookupCache = False
+      ProviderFlags = [pfInUpdate, pfInWhere]
+      ReadOnly = False
+      Required = False
+      Size = 32
+    end
+    object ZQuery1Buy: TFloatField
+      DisplayLabel = 'Покупка'
+      FieldKind = fkData
+      FieldName = 'buy'
+      Index = 1
+      LookupCache = False
+      ProviderFlags = [pfInUpdate, pfInWhere]
+      ReadOnly = False
+      Required = False
+    end
+    object BanksAndCurrencyQuerysell: TFloatField
+      DisplayLabel = 'Продажа'
+      FieldKind = fkData
+      FieldName = 'sell'
+      Index = 2
+      LookupCache = False
+      ProviderFlags = [pfInUpdate, pfInWhere]
+      ReadOnly = False
+      Required = False
+    end
+  end
+  object StatisticTable: TZTable
+    Connection = ZConnection1
+    ReadOnly = True
+    TableName = 'public.get_base_statistic'
+    Left = 468
+    Top = 108
+  end
+  object StatistecDataSource: TDataSource
+    DataSet = StatisticTable
+    Left = 464
+    Top = 32
+  end
+end

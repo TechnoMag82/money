@@ -69,7 +69,7 @@ begin
     begin
       currencyName := TJSONObject(jItem).Names[j];
       jObject := TJSONObject(jItem).Objects[currencyName];
-      FCurrencyList.Add(TCurrency.Create(StrToInt(bankId), jObject.Get('buy'), jObject.Get('sell')));
+      FCurrencyList.Add(TCurrency.Create(StrToInt(bankId), currencyName, jObject.Get('buy'), jObject.Get('sell')));
       {$IFOPT D+}Logger.Send(bankId + ': ' + currencyName + ' buy: ' + FloatToStr(jObject.Get('buy')) + ' sell: ' + FloatToStr(jObject.Get('sell')));{$ENDIF}
     end;
   end;
@@ -92,6 +92,7 @@ begin
         id := StrToInt(isolatetext(item, '"', '"'));
         bankName := isolatetext(item, '>', '<');
         FBankList.Add(TBank.Create(id, bankName, 'ua'));
+        { #todo : Verify: dublicate logging }
         {$IFOPT D+}Logger.Send('id: ' + IntToStr(id) + ': ' + bankName);{$ENDIF}
       except
       end;

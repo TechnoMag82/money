@@ -16,13 +16,15 @@ type
   TCurrency = class
   strict private
     FBankId: Integer;
+    FCurrency: String;
     FBuyCurrency: Single;
     FSellCurrency: Single;
   public
     property BankId: Integer read FBankId;
     property Buy: Single read FBuyCurrency;
     property Sell: Single read FSellCurrency;
-    constructor Create(ABankId: Integer; ABuyCurrency: Single; ASellCurrency: Single);
+    property Currency: String read FCurrency;
+    constructor Create(ABankId: Integer; ACurrency: String; ABuyCurrency: Single; ASellCurrency: Single);
   end;
 
   { TBank }
@@ -46,12 +48,13 @@ implementation
 
 { TCurrency }
 
-constructor TCurrency.Create(ABankId: Integer; ABuyCurrency: Single;
+constructor TCurrency.Create(ABankId: Integer; ACurrency: String; ABuyCurrency: Single;
   ASellCurrency: Single);
 begin
   FBankId := ABankId;
   FBuyCurrency := ABuyCurrency;
   FSellCurrency := ASellCurrency;
+  FCurrency := ACurrency;
 end;
 
 { TBank }

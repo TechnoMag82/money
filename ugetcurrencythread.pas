@@ -5,7 +5,10 @@ unit uGetCurrencyThread;
 interface
 
 uses
-  Classes, SysUtils, IdHTTP, uCurrencyParser;
+  Classes, SysUtils, IdHTTP, DB, ZConnection, ZDataset,
+  uCurrencyParser,
+  uBankAndCurrency
+  {$IFOPT D+}, MultiLog, ipcchannel{$ENDIF};
 
 type
   TAction = (acInProgress, acCompleted);
@@ -16,13 +19,19 @@ type
   TGetCurrencyThread = class(TThread)
   private
     FOnShowStatus: TShowStatusEvent;
+    FZConnection: TZConnection;
+    FZQuery: TZQuery;
     procedure sendEvent();
     procedure sendCompletedEvent();
+    procedure updateCurrencyNamesInDB(currencyList: TCurrencyList);
+    procedure updateCurrency(currencyList: TCurrencyList);
+    procedure updateBanksInDB(bankList: TBankList);
+    procedure updateDB(var currencyParser: TCurrencyParser);
   protected
     procedure execute; override;
   public
     property OnShowStatus: TShowStatusEvent read FOnShowStatus write FOnShowStatus;
-    constructor Create(); overload;
+    constructor Create(var AZConnection: TZConnection); overload;
   end;
 
 implementation
@@ -39,6 +48,83 @@ procedure TGetCurrencyThread.sendCompletedEvent();
 begin
   if Assigned(FOnShowStatus) then
     FOnShowStatus(self, acCompleted);
+end;
+
+procedure TGetCurrencyThread.updateCurrencyNamesInDB(
+  currencyList: TCurrencyList);
+var
+  currency: TCurrency;
+begin
+  FZQuery.SQL.Text := 'INSERT INTO currency_names (currency_name) VALUES (:CURRENCY_NAME) ON CONFLICT (currency_name) DO NOTHING;';
+  FZQuery.ParamCheck := true;
+  for currency in currencyList do
+  begin
+    try
+      FZQuery.ParamByName('CURRENCY_NAME').AsString := currency.Currency;
+      FZQuery.ExecSQL;
+    except
+      on E:Exception do
+        {$IFOPT D+}Logger.Send('UpdateCurrencyNames error: ' + E.Message);{$ENDIF}
+    end;
+  end;
+end;
+
+procedure TGetCurrencyThread.updateCurrency(currencyList: TCurrencyList);
+var
+  currency: TCurrency;
+begin
+  FZQuery.SQL.Clear;
+  FZQuery.SQL.Add('INSERT INTO currencies (currency_name_id, bank_id, buy, sell, date_get)');
+  FZQuery.SQL.Add(' VALUES ((SELECT id FROM currency_names WHERE currency_name=:CURRENCY_NAME), :BANK_ID, :BUY, :SELL, current_date)');
+  FZQuery.SQL.Add(' ON CONFLICT (date_get, bank_id, currency_name_id)');
+  FZQuery.SQL.Add(' DO UPDATE SET buy = EXCLUDED.buy, sell = EXCLUDED.sell;');
+  FZQuery.ParamCheck := true;
+  for currency in currencyList do
+  begin
+    try
+      FZQuery.ParamByName('CURRENCY_NAME').AsString := currency.Currency;
+      FZQuery.ParamByName('BANK_ID').AsInteger := currency.BankId;
+      FZQuery.ParamByName('BUY').AsFloat := currency.Buy;
+      FZQuery.ParamByName('SELL').AsFloat := currency.Sell;
+      FZQuery.ExecSQL;
+    except
+      on E:Exception do
+        {$IFOPT D+}Logger.Send('Insert currencies error: ' + E.Message);{$ENDIF}
+    end;
+  end;
+end;
+
+procedure TGetCurrencyThread.updateBanksInDB(bankList: TBankList);
+var
+  bank: TBank;
+begin
+  FZQuery.SQL.Text := 'INSERT INTO banks (bank_id, country, bank_name) VALUES (:BANK_ID, :BANK_COUNTRY, :BANK_NAME) ON CONFLICT (bank_id, bank_name) DO NOTHING;';
+  FZQuery.ParamCheck := true;
+  for bank in bankList do
+  begin
+    try
+      FZQuery.ParamByName('BANK_ID').AsInteger := bank.BankId;
+      FZQuery.ParamByName('BANK_NAME').AsString:= bank.BankName;
+      FZQuery.ParamByName('BANK_COUNTRY').AsString := bank.BankCountry;
+      FZQuery.ExecSQL;
+    except
+      on E:Exception do
+        {$IFOPT D+}Logger.Send('Insert banks error: ' + E.Message);{$ENDIF}
+    end;
+  end;
+end;
+
+procedure TGetCurrencyThread.updateDB(var currencyParser: TCurrencyParser);
+begin
+  FZQuery := TZQuery.Create(nil);
+  FZQuery.Connection := FZConnection;
+  try
+    updateBanksInDB(currencyParser.BankList);
+    updateCurrencyNamesInDB(currencyParser.CurrencyList);
+    updateCurrency(currencyParser.CurrencyList);
+  finally
+    FZQuery.Free;
+  end;
 end;
 
 procedure TGetCurrencyThread.execute;
@@ -60,7 +146,7 @@ begin
     currencyParser := TCurrencyParser.Create;
     try
       currencyParser.parseDump(stringStream.DataString);
-      { #todo : Add save currencies to DB }
+      updateDB(currencyParser);
     finally
       currencyParser.Free;
     end;
@@ -71,10 +157,12 @@ begin
   end;
 end;
 
-constructor TGetCurrencyThread.Create();
+constructor TGetCurrencyThread.Create(var AZConnection: TZConnection);
 begin
-  FreeOnTerminate := true;
   inherited Create(true);
+  FreeOnTerminate := true;
+  FZConnection := AZConnection;
+  {$IFOPT D+}Logger.Channels.Add(TIPCChannel.Create){$ENDIF};
 end;
 
 end.
