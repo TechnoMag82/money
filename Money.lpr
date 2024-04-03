@@ -11,14 +11,13 @@ uses
   {$ENDIF}
   Interfaces, // this includes the LCL widgetset
   Forms, frmMain, indylaz, zcomponent, uBankAndCurrency, uCurrencyParser,
-  uGetCurrencyThread, uDataModule
-  { you can add units after this };
+  uGetCurrencyThread, uDataModule, frmLoginDialog;
 
 {$R *.res}
 
 begin
   RequireDerivedFormResource:=True;
-  Application.Scaled:=True;
+  Application.Scaled := True;
   Application.Initialize;
   Application.CreateForm(TDataModule1, DataModule1);
   Application.CreateForm(TMainForm, MainForm);

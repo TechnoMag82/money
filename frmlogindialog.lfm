@@ -1,0 +1,55 @@
+object LoginDialog: TLoginDialog
+  Left = 752
+  Height = 184
+  Top = 316
+  Width = 337
+  BorderIcons = [biSystemMenu, biMinimize]
+  BorderStyle = bsSingle
+  Caption = 'Авторизация'
+  ClientHeight = 184
+  ClientWidth = 337
+  Position = poMainFormCenter
+  ShowInTaskBar = stNever
+  LCLVersion = '3.2.0.0'
+  object LoginEdit: TLabeledEdit
+    Left = 20
+    Height = 26
+    Top = 36
+    Width = 268
+    EditLabel.Height = 18
+    EditLabel.Width = 268
+    EditLabel.Caption = 'Логин'
+    TabOrder = 0
+  end
+  object PasswordEdit: TLabeledEdit
+    Left = 20
+    Height = 26
+    Top = 97
+    Width = 266
+    EchoMode = emPassword
+    EditLabel.Height = 18
+    EditLabel.Width = 266
+    EditLabel.Caption = 'Пароль'
+    PasswordChar = '*'
+    TabOrder = 1
+    OnKeyDown = PasswordEditKeyDown
+  end
+  object OkButton: TButton
+    Left = 248
+    Height = 25
+    Top = 144
+    Width = 75
+    Caption = 'Ок'
+    ModalResult = 1
+    TabOrder = 2
+  end
+  object CancelButton: TButton
+    Left = 124
+    Height = 25
+    Top = 144
+    Width = 107
+    Caption = 'Отменить'
+    ModalResult = 2
+    TabOrder = 3
+  end
+end

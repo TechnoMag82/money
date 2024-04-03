@@ -2,7 +2,7 @@
 
 ### Description
         
-Application for get currencies from sites
+Application for get currencies from sites and calculation of buy and sell sum
 
 --------------
 
@@ -20,5 +20,5 @@ Application for get currencies from sites
  - Lazarus v3.2
 
 ------------ 
-         (c) Copyright 2024 by TechnoMag aka Iliya Kobzev
+         (c) Copyright april 2024 by TechnoMag aka Iliya Kobzev
          

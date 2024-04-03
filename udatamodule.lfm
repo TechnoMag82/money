@@ -2,10 +2,10 @@ object DataModule1: TDataModule1
   OnCreate = DataModuleCreate
   OnDestroy = DataModuleDestroy
   OldCreateOrder = False
-  Height = 277
+  Height = 293
   HorizontalOffset = 419
   VerticalOffset = 172
-  Width = 626
+  Width = 959
   object ZConnection1: TZConnection
     ControlsCodePage = cCP_UTF8
     AutoEncodeStrings = True
@@ -16,7 +16,6 @@ object DataModule1: TDataModule1
       'codepage=UTF8'
     )
     TransactIsolationLevel = tiReadCommitted
-    Connected = True
     HostName = 'localhost'
     Port = 5432
     Database = 'currencies'
@@ -35,11 +34,22 @@ object DataModule1: TDataModule1
     Connection = ZConnection1
     ReadOnly = True
     SQL.Strings = (
-      ''
+      'SELECT * FROM get_banks_currency WHERE currency_name = :CUR_NAME AND date_get = current_date;'
     )
-    Params = <>
+    Params = <    
+      item
+        DataType = ftUnknown
+        Name = 'CUR_NAME'
+        ParamType = ptUnknown
+      end>
     Left = 256
-    Top = 104
+    Top = 107
+    ParamData = <    
+      item
+        DataType = ftUnknown
+        Name = 'CUR_NAME'
+        ParamType = ptUnknown
+      end>
     object ZQuery1Bank: TStringField
       DisplayLabel = 'Банк'
       FieldKind = fkData
@@ -60,6 +70,7 @@ object DataModule1: TDataModule1
       ProviderFlags = [pfInUpdate, pfInWhere]
       ReadOnly = False
       Required = False
+      DisplayFormat = '######.0000'
     end
     object BanksAndCurrencyQuerysell: TFloatField
       DisplayLabel = 'Продажа'
@@ -70,6 +81,7 @@ object DataModule1: TDataModule1
       ProviderFlags = [pfInUpdate, pfInWhere]
       ReadOnly = False
       Required = False
+      DisplayFormat = '######.0000'
     end
   end
   object StatisticTable: TZTable
@@ -83,5 +95,125 @@ object DataModule1: TDataModule1
     DataSet = StatisticTable
     Left = 464
     Top = 32
+  end
+  object BanksDataSource: TDataSource
+    AutoEdit = False
+    DataSet = BanksQuery
+    Left = 660
+    Top = 36
+  end
+  object BanksQuery: TZReadOnlyQuery
+    Connection = ZConnection1
+    SQL.Strings = (
+      'SELECT bank_id, CAST(bank_name AS VARCHAR), buy, sell, date_get, currency_name, (avg(tbl1.buy) FILTER (WHERE tbl1.buy>0) OVER ()) AS avg_buy,'
+      '    (avg(tbl1.sell) FILTER (WHERE tbl1.sell>0) OVER ()) AS avg_sell'
+      'FROM (SELECT * FROM get_banks_currency gbc WHERE currency_name =:CUR_NAME AND gbc.date_get = current_date'
+      'UNION ALL '
+      'SELECT * FROM (VALUES (-1000, ''Средний курс'', 0.0, 0.0, current_date, ''''))) tbl1'
+    )
+    Params = <    
+      item
+        DataType = ftUnknown
+        Name = 'CUR_NAME'
+        ParamType = ptUnknown
+      end>
+    Left = 656
+    Top = 107
+    ParamData = <    
+      item
+        DataType = ftUnknown
+        Name = 'CUR_NAME'
+        ParamType = ptUnknown
+      end>
+    object BanksQuerybank_id: TLongintField
+      FieldKind = fkData
+      FieldName = 'bank_id'
+      Index = 0
+      LookupCache = False
+      ProviderFlags = [pfInUpdate, pfInWhere]
+      ReadOnly = False
+      Required = False
+    end
+    object BanksQuerybank_name: TStringField
+      FieldKind = fkData
+      FieldName = 'bank_name'
+      Index = 1
+      LookupCache = False
+      ProviderFlags = [pfInUpdate, pfInWhere]
+      ReadOnly = False
+      Required = False
+    end
+    object BanksQuerysell: TFloatField
+      FieldKind = fkData
+      FieldName = 'sell'
+      Index = 2
+      LookupCache = False
+      ProviderFlags = [pfInUpdate, pfInWhere]
+      ReadOnly = False
+      Required = False
+    end
+    object BanksQuerybuy: TFloatField
+      FieldKind = fkData
+      FieldName = 'buy'
+      Index = 3
+      LookupCache = False
+      ProviderFlags = [pfInUpdate, pfInWhere]
+      ReadOnly = False
+      Required = False
+    end
+    object BanksQueryavg_buy: TFloatField
+      FieldKind = fkData
+      FieldName = 'avg_buy'
+      Index = 4
+      LookupCache = False
+      ProviderFlags = [pfInUpdate, pfInWhere]
+      ReadOnly = False
+      Required = False
+    end
+    object BanksQueryavg_sell: TFloatField
+      FieldKind = fkData
+      FieldName = 'avg_sell'
+      Index = 5
+      LookupCache = False
+      ProviderFlags = [pfInUpdate, pfInWhere]
+      ReadOnly = False
+      Required = False
+    end
+  end
+  object CompareCalcByBanksDataSource: TDataSource
+    AutoEdit = False
+    DataSet = CompareCalcByBanksQuery
+    Left = 816
+    Top = 36
+  end
+  object CompareCalcByBanksQuery: TZReadOnlyQuery
+    Connection = ZConnection1
+    SQL.Strings = (
+      'SELECT bank_name, buy * :USER_SUM AS :CUR_NAME FROM get_banks_currency gbc WHERE currency_name =:CUR_NAME AND gbc.date_get = current_date ORDER BY :CUR_NAME DESC'
+    )
+    Params = <    
+      item
+        DataType = ftUnknown
+        Name = 'USER_SUM'
+        ParamType = ptUnknown
+      end    
+      item
+        DataType = ftUnknown
+        Name = 'CUR_NAME'
+        ParamType = ptUnknown
+      end>
+    Left = 816
+    Top = 108
+    ParamData = <    
+      item
+        DataType = ftUnknown
+        Name = 'USER_SUM'
+        ParamType = ptUnknown
+      end    
+      item
+        DataType = ftUnknown
+        Name = 'CUR_NAME'
+        ParamType = ptUnknown
+      end>
   end
 end
