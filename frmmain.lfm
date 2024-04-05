@@ -1,7 +1,7 @@
 object MainForm: TMainForm
-  Left = 466
+  Left = 654
   Height = 736
-  Top = 192
+  Top = 154
   Width = 1053
   Caption = 'MainForm'
   ClientHeight = 736
@@ -459,6 +459,7 @@ object MainForm: TMainForm
         FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
         FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00
       }
+      OnClick = HistoryBitBtnClick
       TabOrder = 1
     end
   end
@@ -643,7 +644,28 @@ object MainForm: TMainForm
         AutoEdit = False
         AutoFillColumns = True
         Color = clWindow
-        Columns = <>
+        Columns = <        
+          item
+            Font.Color = 10057559
+            Title.Color = clBtnFace
+            Title.Caption = 'Банк'
+            Width = 221
+            FieldName = 'bank_name'
+          end        
+          item
+            Font.Color = clGreen
+            Title.Color = clBtnFace
+            Title.Caption = 'Покупка'
+            Width = 221
+            FieldName = 'buy'
+          end        
+          item
+            Font.Color = clRed
+            Title.Color = clBtnFace
+            Title.Caption = 'Продажа'
+            Width = 221
+            FieldName = 'sell'
+          end>
         DataSource = DataModule1.BanksAndCurrencyDataSource
         FixedCols = 0
         Options = [dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgRowSelect, dgAlwaysShowSelection, dgCancelOnExit]
@@ -666,43 +688,48 @@ object MainForm: TMainForm
             FieldName = 'currency_name'
           end        
           item
+            Font.Color = clGreen
             Title.Caption = 'Средний (покупка)'
             Width = 130
             FieldName = 'avg_buy'
             DisplayFormat = '######.0000'
           end        
           item
+            Font.Color = clRed
             Title.Caption = 'Средний (продажа)'
             Width = 140
             FieldName = 'avg_sell'
             DisplayFormat = '######.0000'
           end        
           item
+            Font.Color = clGreen
             Title.Caption = 'Максимальный (покупка)'
             Width = 160
             FieldName = 'max_buy'
             DisplayFormat = '######.0000'
           end        
           item
+            Font.Color = clRed
             Title.Caption = 'Максимальный (продажа)'
             Width = 140
             FieldName = 'max_sell'
             DisplayFormat = '######.0000'
           end        
           item
+            Font.Color = clGreen
             Title.Caption = 'Минимальный (покупка)'
             Width = 160
             FieldName = 'min_buy'
             DisplayFormat = '######.0000'
           end        
           item
+            Font.Color = clRed
             Title.Caption = 'Минимальный (продажа)'
             Width = 160
             FieldName = 'min_sell'
             DisplayFormat = '######.0000'
           end>
         DataSource = DataModule1.StatistecDataSource
-        FixedCols = 0
         Options = [dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgRowSelect, dgAlwaysShowSelection]
         OptionsExtra = [dgeCheckboxColumn]
         ReadOnly = True

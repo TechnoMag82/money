@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ComCtrls, StdCtrls,
   Buttons, DBGrids, ExtCtrls, DBCtrls, MaskEdit, uGetCurrencyThread,
-  uDataModule, frmLoginDialog, dbf;
+  uDataModule, frmLoginDialog, frmHistory;
 
 type
 
@@ -45,6 +45,7 @@ type
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure CurrencyNamesTabControlChange(Sender: TObject);
+    procedure HistoryBitBtnClick(Sender: TObject);
     procedure SumMaskEditChange(Sender: TObject);
   private
     FGetCurrencyThread: TGetCurrencyThread;
@@ -134,6 +135,11 @@ begin
     DataModule1.getCurrencies(Tabs[TabIndex]);
 end;
 
+procedure TMainForm.HistoryBitBtnClick(Sender: TObject);
+begin
+  THistoryForm.Create(self).ShowModal;
+end;
+
 procedure TMainForm.SumMaskEditChange(Sender: TObject);
 begin
   calcCourses;
@@ -192,8 +198,8 @@ begin
     BankCourseEdit.text := FloatToStr(courseSum);
     ResultEdit.text := FloatToStr(resultSum);
   except
-    on E: Exception do
-      ShowMessage(E.Message);
+    //on E: Exception do
+      //ShowMessage(E.Message);
   end;
 end;
 

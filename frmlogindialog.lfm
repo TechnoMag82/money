@@ -32,7 +32,6 @@ object LoginDialog: TLoginDialog
     EditLabel.Caption = 'Пароль'
     PasswordChar = '*'
     TabOrder = 1
-    OnKeyDown = PasswordEditKeyDown
   end
   object OkButton: TButton
     Left = 248
@@ -40,6 +39,7 @@ object LoginDialog: TLoginDialog
     Top = 144
     Width = 75
     Caption = 'Ок'
+    Default = True
     ModalResult = 1
     TabOrder = 2
   end

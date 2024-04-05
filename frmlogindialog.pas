@@ -16,8 +16,6 @@ type
     CancelButton: TButton;
     PasswordEdit: TLabeledEdit;
     LoginEdit: TLabeledEdit;
-    procedure PasswordEditKeyDown(Sender: TObject; var Key: Word;
-      Shift: TShiftState);
   private
 
   public
@@ -32,13 +30,6 @@ implementation
 {$R *.lfm}
 
 { TLoginDialog }
-
-procedure TLoginDialog.PasswordEditKeyDown(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
-begin
-  if (KEY = VK_RETURN) then
-    ModalResult := mrOk;
-end;
 
 end.
 

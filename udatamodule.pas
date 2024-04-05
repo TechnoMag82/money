@@ -6,14 +6,21 @@ interface
 
 uses
   Classes, SysUtils, DB, ZConnection, ZDataset, ZAbstractConnection,
-  ZSqlMonitor, ZSqlProcessor, Dialogs
+  ZSqlMonitor, ZSqlProcessor, Dialogs, Generics.Collections, uBankAndCurrency
   {$IFOPT D+}, MultiLog, ipcchannel{$ENDIF};
 
 type
   TConnectionStatus = (csLoginError, csDbPathError, csConnectionError, csNone, csOk);
   { TDataModule1 }
 
+  TMinMaxDate = specialize TPair<TDateTime, TDateTime>;
+{  TBankInfo = specialize TPair<String, Integer>;
+  TSelectedBankList = specialize TList<TBankInfo>;}
+
   TDataModule1 = class(TDataModule)
+    BankListQuerybank_id: TLongintField;
+    BankListQuerybank_name: TStringField;
+    BankListQuerychecked: TBooleanField;
     BanksAndCurrencyDataSource: TDataSource;
     BanksDataSource: TDataSource;
     BanksQueryavg_buy: TFloatField;
@@ -23,9 +30,11 @@ type
     BanksQuerybuy: TFloatField;
     BanksQuerysell: TFloatField;
     CompareCalcByBanksDataSource: TDataSource;
+    BanksListDataSource: TDataSource;
     StatistecDataSource: TDataSource;
     ZConnection1: TZConnection;
     BanksAndCurrencyQuery: TZQuery;
+    BankListQuery: TZQuery;
     ZQuery1Bank: TStringField;
     ZQuery1Buy: TFloatField;
     BanksAndCurrencyQuerysell: TFloatField;
@@ -36,11 +45,16 @@ type
     procedure DataModuleDestroy(Sender: TObject);
   private
     FNames: TStringList;
+    FCoursesQuery: TZReadOnlyQuery;
   public
-    function getCurrencies: TStringList;
+    function getCurrencies(currentValue: Boolean = false): TStringList;
     function connectToDb(const login, password: String) : Boolean;
     function getBuySum(index: Integer): Single;
     function getSellSum(index:Integer): Single;
+    function getMinMaxDateOfHistory: TMinMaxDate;
+    procedure getBankCourseList(bankId: Integer; currencyName: String;
+                fromDate, toDate: TDateTime; var currencyList: TCurrencyList);
+    procedure getSelectedBanksIds(var banksIdsList: TBankList);
     procedure getBankListWithCourses(currencyName: String);
     procedure getCurrencies(currencyName: String);
     procedure getCompareTable(operation: String; currencyName: String; userSum: Single);
@@ -67,10 +81,15 @@ begin
   FNames.Free;
 end;
 
-function TDataModule1.getCurrencies: TStringList;
+function TDataModule1.getCurrencies(currentValue: Boolean = false): TStringList;
 var
   i: LongInt;
 begin
+  if (currentValue = true) then
+  begin
+    Result := FNames;
+    exit;
+  end;
   FNames.Clear;
   with TZQuery.Create(self) do
   begin
@@ -167,6 +186,80 @@ begin
   Result := BanksQuery.FieldByName('sell').AsFloat;
   if (Result = 0) then
     Result := BanksQuery.FieldByName('avg_sell').AsFloat;
+end;
+
+function TDataModule1.getMinMaxDateOfHistory: TMinMaxDate;
+var
+  query: TZReadOnlyQuery;
+begin
+  query := TZReadOnlyQuery.Create(nil);
+  query.Connection := ZConnection1;
+  try
+     query.SQL.Text := 'SELECT min(date_get), max(date_get) FROM currencies';
+     query.Open;
+     Result := TMinMaxDate.Create(query.FieldByName('min').AsDateTime, query.FieldByName('min').AsDateTime);
+     {$IFOPT D+}Logger.Send(query.FieldByName('min').AsString);{$ENDIF}
+  finally
+    query.close;
+    query.Free;
+  end;
+end;
+
+procedure TDataModule1.getBankCourseList(bankId: Integer; currencyName: String;
+  fromDate, toDate: TDateTime; var currencyList: TCurrencyList);
+var
+  i: Integer;
+begin
+  if not Assigned(FCoursesQuery) then
+    begin
+      FCoursesQuery := TZReadOnlyQuery.Create(self);
+      FCoursesQuery.Connection := ZConnection1;
+      FCoursesQuery.SQL.Add('SELECT buy, sell, date_get FROM currencies cur');
+      FCoursesQuery.SQL.Add('JOIN currency_names gcn ON cur.currency_name_id = gcn.id');
+      FCoursesQuery.SQL.Add('WHERE gcn.currency_name = :CUR_NAME AND');
+      FCoursesQuery.SQL.Add('date_get BETWEEN :FROM_DATE AND :TO_DATE AND bank_id = :BANK_ID');
+    end;
+  with FCoursesQuery do
+  begin
+    try
+      ParamByName('CUR_NAME').AsString := currencyName;
+      ParamByName('FROM_DATE').AsDateTime := fromDate;
+      ParamByName('TO_DATE').AsDateTime := toDate;
+      ParamByName('BANK_ID').AsInteger := bankId;
+      Open;
+      currencyList.Clear;
+      First;
+      for i := 0 to RecordCount - 1 do
+      begin
+        currencyList.Add(TCurrency.create(0, '',
+          FieldByName('buy').AsFloat,
+          FieldByName('sell').AsFloat,
+          FieldByName('date_get').AsDateTime));
+        Next;
+      end;
+    finally
+      Close;
+    end;
+  end;
+end;
+
+procedure TDataModule1.getSelectedBanksIds(var banksIdsList: TBankList);
+var
+  i: integer;
+begin
+  banksIdsList.clear;
+  with BankListQuery do
+  begin
+    First;
+    for i := 0 to RecordCount - 1 do
+    begin
+      if (FieldByName('checked').AsBoolean = true) then
+      begin
+        banksIdsList.Add(TBank.Create(FieldByName('bank_id').AsInteger, FieldByName('bank_name').AsString, ''));
+      end;
+      Next;
+    end;
+  end;
 end;
 
 end.

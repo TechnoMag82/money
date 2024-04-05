@@ -10,8 +10,9 @@ uses
   athreads,
   {$ENDIF}
   Interfaces, // this includes the LCL widgetset
-  Forms, frmMain, indylaz, zcomponent, uBankAndCurrency, uCurrencyParser,
-  uGetCurrencyThread, uDataModule, frmLoginDialog;
+  Forms, datetimectrls, tachartlazaruspkg, frmMain, indylaz, zcomponent,
+  uBankAndCurrency, uCurrencyParser, uGetCurrencyThread, uDataModule,
+  frmLoginDialog;
 
 {$R *.res}
 

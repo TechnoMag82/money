@@ -19,12 +19,14 @@ type
     FCurrency: String;
     FBuyCurrency: Single;
     FSellCurrency: Single;
+    FDate: TDateTime;
   public
     property BankId: Integer read FBankId;
     property Buy: Single read FBuyCurrency;
     property Sell: Single read FSellCurrency;
     property Currency: String read FCurrency;
-    constructor Create(ABankId: Integer; ACurrency: String; ABuyCurrency: Single; ASellCurrency: Single);
+    property Date: TDateTime read FDate;
+    constructor Create(ABankId: Integer; ACurrency: String; ABuyCurrency: Single; ASellCurrency: Single; ADate: TDateTime = 0);
   end;
 
   { TBank }
@@ -49,12 +51,13 @@ implementation
 { TCurrency }
 
 constructor TCurrency.Create(ABankId: Integer; ACurrency: String; ABuyCurrency: Single;
-  ASellCurrency: Single);
+  ASellCurrency: Single; ADate: TDateTime = 0);
 begin
   FBankId := ABankId;
   FBuyCurrency := ABuyCurrency;
   FSellCurrency := ASellCurrency;
   FCurrency := ACurrency;
+  FDate := ADate;
 end;
 
 { TBank }

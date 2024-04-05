@@ -2,7 +2,7 @@ object DataModule1: TDataModule1
   OnCreate = DataModuleCreate
   OnDestroy = DataModuleDestroy
   OldCreateOrder = False
-  Height = 293
+  Height = 428
   HorizontalOffset = 419
   VerticalOffset = 172
   Width = 959
@@ -215,5 +215,47 @@ object DataModule1: TDataModule1
         Name = 'CUR_NAME'
         ParamType = ptUnknown
       end>
+  end
+  object BanksListDataSource: TDataSource
+    DataSet = BankListQuery
+    Left = 264
+    Top = 228
+  end
+  object BankListQuery: TZQuery
+    Connection = ZConnection1
+    SQL.Strings = (
+      'SELECT *, 0 AS checked FROM get_banks ORDER BY bank_name'
+    )
+    Params = <>
+    Left = 268
+    Top = 332
+    object BankListQuerybank_id: TLongintField
+      FieldKind = fkData
+      FieldName = 'bank_id'
+      Index = 0
+      LookupCache = False
+      ProviderFlags = [pfInUpdate, pfInWhere]
+      ReadOnly = False
+      Required = False
+    end
+    object BankListQuerybank_name: TStringField
+      FieldKind = fkData
+      FieldName = 'bank_name'
+      Index = 1
+      LookupCache = False
+      ProviderFlags = [pfInUpdate, pfInWhere]
+      ReadOnly = False
+      Required = False
+    end
+    object BankListQuerychecked: TBooleanField
+      FieldKind = fkData
+      FieldName = 'checked'
+      Index = 2
+      LookupCache = False
+      ProviderFlags = [pfInUpdate, pfInWhere]
+      ReadOnly = False
+      Required = False
+      DisplayValues = 'True;False'
+    end
   end
 end
