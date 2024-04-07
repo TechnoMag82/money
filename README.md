@@ -4,6 +4,9 @@
         
 Application for get currencies from sites and calculation of buy and sell sum
 
+<img src="screenshots/MainWindow.png" height="640"/>
+
+<img src="screenshots/HistoryWindow.png" height="540"/>
 --------------
 
 ### Dependencies
