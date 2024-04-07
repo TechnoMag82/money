@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, DB, ZConnection, ZDataset, ZAbstractConnection,
-  ZSqlMonitor, ZSqlProcessor, Dialogs, Generics.Collections, uBankAndCurrency
+  Dialogs, Generics.Collections, uBankAndCurrency
   {$IFOPT D+}, MultiLog, ipcchannel{$ENDIF};
 
 type
@@ -14,8 +14,6 @@ type
   { TDataModule1 }
 
   TMinMaxDate = specialize TPair<TDateTime, TDateTime>;
-{  TBankInfo = specialize TPair<String, Integer>;
-  TSelectedBankList = specialize TList<TBankInfo>;}
 
   TDataModule1 = class(TDataModule)
     BankListQuerybank_id: TLongintField;

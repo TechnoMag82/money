@@ -184,7 +184,7 @@ var
   userSum, courseSum, resultSum: Single;
 begin
   try
-    userSum := StrToFloat(SumMaskEdit.Text);
+    userSum := StrToFloat(SumMaskEdit.EditText);
     if (BuyRadioButton.Checked = true) then
     begin
       courseSum := DataModule1.getSellSum(BanksDBLookupComboBox.ItemIndex);
@@ -198,8 +198,8 @@ begin
     BankCourseEdit.text := FloatToStr(courseSum);
     ResultEdit.text := FloatToStr(resultSum);
   except
-    //on E: Exception do
-      //ShowMessage(E.Message);
+    on E: Exception do
+      ShowMessage(E.Message);
   end;
 end;
 

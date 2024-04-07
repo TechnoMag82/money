@@ -550,8 +550,8 @@ object MainForm: TMainForm
         MaxLength = 8
         TabOrder = 4
         OnChange = SumMaskEditChange
-        EditMask = '99999.00;1;0'
-        Text = '     .  '
+        EditMask = '99999,00;1;0'
+        Text = '     ,  '
         SpaceChar = '0'
       end
       object DBGrid1: TDBGrid
@@ -647,21 +647,18 @@ object MainForm: TMainForm
         Columns = <        
           item
             Font.Color = 10057559
-            Title.Color = clBtnFace
             Title.Caption = 'Банк'
             Width = 221
             FieldName = 'bank_name'
           end        
           item
             Font.Color = clGreen
-            Title.Color = clBtnFace
             Title.Caption = 'Покупка'
             Width = 221
             FieldName = 'buy'
           end        
           item
             Font.Color = clRed
-            Title.Color = clBtnFace
             Title.Caption = 'Продажа'
             Width = 221
             FieldName = 'sell'
@@ -730,6 +727,7 @@ object MainForm: TMainForm
             DisplayFormat = '######.0000'
           end>
         DataSource = DataModule1.StatistecDataSource
+        FixedCols = 0
         Options = [dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgRowSelect, dgAlwaysShowSelection]
         OptionsExtra = [dgeCheckboxColumn]
         ReadOnly = True

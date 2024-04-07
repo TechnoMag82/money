@@ -5,7 +5,7 @@ unit uBankAndCurrency;
 interface
 
 uses
-  Classes, SysUtils, contnrs, fgl;
+  Classes, SysUtils, fgl;
 
 type
 
