@@ -5,9 +5,12 @@ unit uDataModule;
 interface
 
 uses
-  Classes, SysUtils, DB, ZConnection, ZDataset, ZAbstractConnection,
-  Dialogs, Generics.Collections, uBankAndCurrency
+  Classes, SysUtils, DB, ZConnection, ZDataset,
+  Dialogs, Generics.Collections, uBankAndCurrency, IniFiles, lazfileutils
   {$IFOPT D+}, MultiLog, ipcchannel{$ENDIF};
+
+const
+  ConfigFileName : String = 'TechnoMag/money.conf';
 
 type
   TConnectionStatus = (csLoginError, csDbPathError, csConnectionError, csNone, csOk);
@@ -44,7 +47,9 @@ type
   private
     FNames: TStringList;
     FCoursesQuery: TZReadOnlyQuery;
+    FAppConfigPath: String;
   public
+    function loadConnectionSettings: Boolean;
     function getCurrencies(currentValue: Boolean = false): TStringList;
     function connectToDb(const login, password: String) : Boolean;
     function getBuySum(index: Integer): Single;
@@ -56,6 +61,7 @@ type
     procedure getBankListWithCourses(currencyName: String);
     procedure getCurrencies(currencyName: String);
     procedure getCompareTable(operation: String; currencyName: String; userSum: Single);
+    procedure saveSettings(hostName: String; port: Integer; database, driverPath: String);
   end;
 
 var
@@ -69,6 +75,7 @@ implementation
 
 procedure TDataModule1.DataModuleCreate(Sender: TObject);
 begin
+  FAppConfigPath := ExtractFilePath(ChompPathDelim(GetAppConfigDir(False))) + ConfigFileName;
   FNames := TStringList.Create;
   {$IFOPT D+}Logger.Channels.Add(TIPCChannel.Create){$ENDIF};
 end;
@@ -77,6 +84,27 @@ procedure TDataModule1.DataModuleDestroy(Sender: TObject);
 begin
   ZConnection1.Disconnect;
   FNames.Free;
+end;
+
+function TDataModule1.loadConnectionSettings: Boolean;
+begin
+  if FileExists(FAppConfigPath) then
+  begin
+    with (TIniFile.Create(FAppConfigPath)) do
+    begin
+      try
+        ZConnection1.Port := ReadInteger('Connection', 'port', 5432);
+        ZConnection1.HostName := ReadString('Connection', 'host', 'localhost');
+        ZConnection1.Database := ReadString('Connection', 'database', 'currencies');
+        ZConnection1.LibraryLocation := ReadString('Connection', 'driver', '/usr/lib/x86_64-linux-gnu/libpq.so.5');
+      finally
+        Free;
+      end;
+    end;
+    Result := true;
+  end
+  else
+    Result := false;
 end;
 
 function TDataModule1.getCurrencies(currentValue: Boolean = false): TStringList;
@@ -148,6 +176,22 @@ begin
     SQL.Text := SQL.Text.Replace(':CUR_STRING', '''' + currencyName + '''', [rfReplaceAll]);
     Open;
     (CompareCalcByBanksQuery.Fields[1] as TFloatField).DisplayFormat := '######.0000';
+  end;
+end;
+
+procedure TDataModule1.saveSettings(hostName: String; port: Integer; database,
+  driverPath: String);
+begin
+  with (TIniFile.Create(FAppConfigPath)) do
+  begin
+    try
+      WriteInteger('Connection', 'port', port);
+      WriteString('Connection', 'host', hostName);
+      WriteString('Connection', 'database', dataBase);
+      WriteString('Connection', 'driver', driverPath);
+    finally
+      Free;
+    end;
   end;
 end;
 

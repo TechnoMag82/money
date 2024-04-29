@@ -1,0 +1,86 @@
+object SettingsForm: TSettingsForm
+  Left = 636
+  Height = 273
+  Top = 351
+  Width = 326
+  BorderIcons = [biSystemMenu, biMinimize]
+  BorderStyle = bsSingle
+  Caption = 'Настройки'
+  ClientHeight = 273
+  ClientWidth = 326
+  Position = poMainFormCenter
+  LCLVersion = '3.2.0.0'
+  object HostnameEdit: TLabeledEdit
+    Left = 16
+    Height = 26
+    Top = 32
+    Width = 200
+    EditLabel.Height = 18
+    EditLabel.Width = 200
+    EditLabel.Caption = 'Hostname'
+    TabOrder = 0
+    Text = 'localhost'
+  end
+  object PortEdit: TLabeledEdit
+    Left = 228
+    Height = 26
+    Top = 31
+    Width = 80
+    EditLabel.Height = 18
+    EditLabel.Width = 80
+    EditLabel.Caption = 'Port'
+    MaxLength = 4
+    TabOrder = 1
+    Text = '5432'
+  end
+  object DatabaseNameEdit: TLabeledEdit
+    Left = 16
+    Height = 26
+    Top = 104
+    Width = 200
+    EditLabel.Height = 18
+    EditLabel.Width = 200
+    EditLabel.Caption = 'Database name'
+    TabOrder = 2
+    Text = 'currencies'
+  end
+  object DriverPathEdit: TLabeledEdit
+    Left = 16
+    Height = 26
+    Top = 180
+    Width = 196
+    EditLabel.Height = 18
+    EditLabel.Width = 196
+    EditLabel.Caption = 'Driver path'
+    ReadOnly = True
+    TabOrder = 3
+    Text = '/usr/lib/x86_64-linux-gnu/libpq.so.5'
+  end
+  object DataBasePathButton: TButton
+    Left = 228
+    Height = 25
+    Top = 180
+    Width = 75
+    Caption = 'Find'
+    TabOrder = 4
+    OnClick = DataBasePathButtonClick
+  end
+  object OkButton: TButton
+    Left = 228
+    Height = 25
+    Top = 228
+    Width = 75
+    Caption = 'Ok'
+    ModalResult = 1
+    TabOrder = 5
+  end
+  object CancelButton: TButton
+    Left = 137
+    Height = 25
+    Top = 228
+    Width = 75
+    Caption = 'Cancel'
+    ModalResult = 2
+    TabOrder = 6
+  end
+end

@@ -5,15 +5,16 @@ unit frmMain;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ComCtrls, StdCtrls,
-  Buttons, DBGrids, ExtCtrls, DBCtrls, MaskEdit, uGetCurrencyThread,
-  uDataModule, frmLoginDialog, frmHistory;
+  Classes, SysUtils, Forms, Controls, Dialogs, ComCtrls, StdCtrls,
+  Buttons, DBGrids, ExtCtrls, DBCtrls, MaskEdit, LCLType, uGetCurrencyThread,
+  uDataModule, frmLoginDialog, frmHistory, frmSettings;
 
 type
 
   { TMainForm }
 
   TMainForm = class(TForm)
+    SettingsBitBtn: TBitBtn;
     HistoryBitBtn: TBitBtn;
     BtnUpdate: TBitBtn;
     BanksAndCurrencyDBGrid: TDBGrid;
@@ -46,6 +47,7 @@ type
     procedure FormCreate(Sender: TObject);
     procedure CurrencyNamesTabControlChange(Sender: TObject);
     procedure HistoryBitBtnClick(Sender: TObject);
+    procedure SettingsBitBtnClick(Sender: TObject);
     procedure SumMaskEditChange(Sender: TObject);
   private
     FGetCurrencyThread: TGetCurrencyThread;
@@ -54,6 +56,8 @@ type
     procedure showStatus(Sender: TObject; progressAction: TAction);
     procedure enableControls(enable: boolean);
     procedure calcCourses;
+    procedure showLoginDialog;
+    procedure showSettingsDialog;
   public
 
   end;
@@ -92,34 +96,13 @@ begin
 end;
 
 procedure TMainForm.FormActivate(Sender: TObject);
-var
-  LoginForm: TLoginDialog;
 begin
   if FFirstActivate then
   begin
-    LoginForm := TLoginDialog.Create(self);
-    try
-      while true do
-      begin
-        if LoginForm.ShowModal = mrOk then
-        begin
-          if DataModule1.connectToDb(LoginForm.LoginEdit.Text,
-                  LoginForm.PasswordEdit.Text) then
-          begin
-            enableControls(true);
-            DataModule1.StatisticTable.Open;
-            updateBanksCurrenciesTable;
-            break;
-          end;
-        end else
-        begin
-          break;
-        end;
-      end;
-    finally
-      FFirstActivate := false;
-      LoginForm.Free;
-    end;
+    if DataModule1.loadConnectionSettings then
+      showLoginDialog
+    else
+      showSettingsDialog;
   end;
 end;
 
@@ -138,6 +121,11 @@ end;
 procedure TMainForm.HistoryBitBtnClick(Sender: TObject);
 begin
   THistoryForm.Create(self).ShowModal;
+end;
+
+procedure TMainForm.SettingsBitBtnClick(Sender: TObject);
+begin
+  showSettingsDialog;
 end;
 
 procedure TMainForm.SumMaskEditChange(Sender: TObject);
@@ -200,6 +188,67 @@ begin
   except
     on E: Exception do
       ShowMessage(E.Message);
+  end;
+end;
+
+procedure TMainForm.showLoginDialog;
+var
+  LoginForm: TLoginDialog;
+begin
+  LoginForm := TLoginDialog.Create(self);
+  try
+    while true do
+    begin
+      if LoginForm.ShowModal = mrOk then
+      begin
+        if DataModule1.connectToDb(LoginForm.LoginEdit.Text,
+                LoginForm.PasswordEdit.Text) then
+        begin
+          enableControls(true);
+          DataModule1.StatisticTable.Open;
+          updateBanksCurrenciesTable;
+          break;
+        end;
+      end else
+      begin
+        break;
+      end;
+    end;
+  finally
+    FFirstActivate := false;
+    LoginForm.Free;
+  end;
+end;
+
+procedure TMainForm.showSettingsDialog;
+begin
+  with (TSettingsForm.Create(self)) do
+  begin
+    try
+      HostnameEdit.Text := DataModule1.ZConnection1.HostName;
+      DriverPathEdit.Text := DataModule1.ZConnection1.LibraryLocation;
+      PortEdit.Text := IntToStr(DataModule1.ZConnection1.Port);
+      DatabaseNameEdit.Text := DataModule1.ZConnection1.Database;
+      if (ShowModal = mrOk) then
+      begin
+        DataModule1.saveSettings(HostnameEdit.Text,
+          StrToInt(PortEdit.Text),
+          DatabaseNameEdit.Text,
+          DriverPathEdit.Text);
+        if (Application.MessageBox('Настройки были изменены. Пересоединиться с базой данных?',
+          'Money', MB_YESNO + MB_ICONQUESTION) = IDYES) then
+        begin
+          DataModule1.ZConnection1.Disconnect;
+          DataModule1.ZConnection1.HostName := HostnameEdit.Text;
+          DataModule1.ZConnection1.LibraryLocation := DriverPathEdit.Text;
+          DataModule1.ZConnection1.Port := StrToInt(PortEdit.Text);
+          DataModule1.ZConnection1.Database := DatabaseNameEdit.Text;
+          showLoginDialog;
+        end;
+      end;
+    finally
+      Free;
+    end;
   end;
 end;
 

@@ -34,7 +34,7 @@ object DataModule1: TDataModule1
     Connection = ZConnection1
     ReadOnly = True
     SQL.Strings = (
-      'SELECT * FROM get_banks_currency WHERE currency_name = :CUR_NAME AND date_get = current_date;'
+      'SELECT * FROM get_banks_currency WHERE currency_name = :CUR_NAME AND date_get = current_date ORDER BY bank_name;'
     )
     Params = <    
       item
